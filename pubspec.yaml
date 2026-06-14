@@ -23,6 +23,12 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   flutter_launcher_icons: ^0.14.1
 
+# file_picker'ın çektiği yeni flutter_plugin_android_lifecycle (2.0.35) compileSdk 36
+# istiyor; file_picker 8.x ise 34'e karşı derleniyor. Çakışmayı önlemek için 34 dönemi
+# bir sürüme sabitliyoruz (bu tek satır Android release build'ini düzeltir).
+dependency_overrides:
+  flutter_plugin_android_lifecycle: 2.0.17
+
 flutter:
   uses-material-design: true
   assets:
