@@ -1,0 +1,107 @@
+name: Release
+
+# Bir sürüm etiketi (v1.0.0 gibi) push edildiğinde dört platform için
+# kurulum dosyalarını derler ve GitHub Release'e ekler.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch: # Releases sekmesinden elle de tetiklenebilir
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: "3.44.2"
+
+jobs:
+  # ----------------------------- Android (APK) -----------------------------
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - name: Rename artifact
+        run: cp build/app/outputs/flutter-apk/app-release.apk Focus-Android.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Focus-Android.apk
+
+  # ----------------------------- Linux (tar.gz) ----------------------------
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build deps
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build linux --release
+      - name: Package tarball
+        run: |
+          cd build/linux/x64/release/bundle
+          tar -czf "$GITHUB_WORKSPACE/Focus-Linux-x86_64.tar.gz" .
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Focus-Linux-x86_64.tar.gz
+
+  # --------------------------- Windows (zip + exe) -------------------------
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Zip (portable)
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath Focus-Windows.zip
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Build installer
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" windows\installer.iss'
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Focus-Windows.zip
+            Output/Focus-Setup-Windows.exe
+
+  # ------------------------------ macOS (DMG) ------------------------------
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build macos --release
+      - name: Create DMG
+        run: |
+          APP="build/macos/Build/Products/Release/Focus.app"
+          mkdir -p dmg_staging
+          cp -R "$APP" dmg_staging/
+          ln -s /Applications dmg_staging/Applications
+          hdiutil create -volname "Focus" -srcfolder dmg_staging -ov -format UDZO Focus-macOS.dmg
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Focus-macOS.dmg

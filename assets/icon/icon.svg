@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B0F14"/>
+      <stop offset="1" stop-color="#16202B"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6FA8FF"/>
+      <stop offset="1" stop-color="#4F8CFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <!-- dış odak halkası -->
+  <circle cx="512" cy="512" r="248" fill="none" stroke="url(#ring)" stroke-width="48"/>
+  <!-- odak köşe çentikleri -->
+  <g stroke="#4F8CFF" stroke-width="44" stroke-linecap="round" opacity="0.55">
+    <path d="M232 360 V232 H360"/>
+    <path d="M664 232 H792 V360"/>
+    <path d="M792 664 V792 H664"/>
+    <path d="M360 792 H232 V664"/>
+  </g>
+  <!-- merkez nokta -->
+  <circle cx="512" cy="512" r="96" fill="url(#ring)"/>
+</svg>

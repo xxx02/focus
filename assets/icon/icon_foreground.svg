@@ -1,0 +1,17 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6FA8FF"/>
+      <stop offset="1" stop-color="#4F8CFF"/>
+    </linearGradient>
+  </defs>
+  <!-- Adaptive icon: öğeler merkezde güvenli alanda (~%60) tutuldu -->
+  <circle cx="512" cy="512" r="170" fill="none" stroke="url(#ring)" stroke-width="38"/>
+  <g stroke="#6FA8FF" stroke-width="34" stroke-linecap="round" opacity="0.6">
+    <path d="M340 420 V340 H420"/>
+    <path d="M604 340 H684 V420"/>
+    <path d="M684 604 V684 H604"/>
+    <path d="M420 684 H340 V604"/>
+  </g>
+  <circle cx="512" cy="512" r="66" fill="url(#ring)"/>
+</svg>
