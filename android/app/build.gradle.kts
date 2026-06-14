@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "io.github.xxx02.focus"
-    compileSdk = flutter.compileSdkVersion
+    // Bazı eklentiler (flutter_plugin_android_lifecycle vb.) compileSdk 36 ister.
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
