@@ -119,7 +119,7 @@ class SettingsPage extends StatelessWidget {
       } else {
         // Masaüstü: kullanıcıya yer sor, ardından dosyayı SEÇİLEN yola yaz.
         // (saveFile masaüstünde yalnızca yolu döndürür; dosyayı biz yazarız.)
-        final savePath = await FilePicker.platform.saveFile(
+        final savePath = await FilePicker.saveFile(
           dialogTitle: 'Yer imlerini kaydet',
           fileName: 'focus_bookmarks_export.json',
         );
@@ -147,7 +147,7 @@ class SettingsPage extends StatelessWidget {
     final scope = AppScope.of(context);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
         withData: true,
