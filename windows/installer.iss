@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=Focus
-AppVersion=1.0.0
+AppVersion=1.1.0
 AppPublisher=xxx02
 AppPublisherURL=https://github.com/xxx02/focus
 ; Göreli yollar (Source, OutputDir) bu script'in bir üst klasörüne = repo köküne göre çözülür.

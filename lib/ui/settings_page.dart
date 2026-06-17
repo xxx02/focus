@@ -6,10 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../services/settings_store.dart';
+import '../services/window_service.dart';
 import 'app_scope.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
+
+  bool get _isMobile => Platform.isAndroid || Platform.isIOS;
 
   @override
   Widget build(BuildContext context) {
@@ -22,44 +26,84 @@ class SettingsPage extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
             children: [
-              const _SectionTitle('Tarayıcı'),
-              if (scope.browsers.isEmpty)
-                const ListTile(
-                  leading: Icon(Icons.warning_amber_rounded),
-                  title: Text('Tarayıcı bulunamadı'),
-                  subtitle: Text(
-                    'Brave, Chrome veya Edge kurulu değil. '
-                    'Sayfalar varsayılan tarayıcıda açılır.',
-                  ),
-                )
-              else
-                RadioGroup<String>(
-                  groupValue: scope.settings.selectedBrowser?.id,
-                  onChanged: (id) {
-                    for (final b in scope.browsers) {
-                      if (b.id == id) {
-                        scope.settings.setBrowser(b);
-                        break;
+              // --- Masaüstü: hangi tarayıcı app modunda açılsın ---
+              if (WindowService.isDesktop) ...[
+                const _SectionTitle('Tarayıcı'),
+                if (scope.browsers.isEmpty)
+                  const ListTile(
+                    leading: Icon(Icons.warning_amber_rounded),
+                    title: Text('Tarayıcı bulunamadı'),
+                    subtitle: Text(
+                      'Brave, Chrome veya Edge kurulu değil. '
+                      'Sayfalar varsayılan tarayıcıda açılır.',
+                    ),
+                  )
+                else
+                  RadioGroup<String>(
+                    groupValue: scope.settings.selectedBrowser?.id,
+                    onChanged: (id) {
+                      for (final b in scope.browsers) {
+                        if (b.id == id) {
+                          scope.settings.setBrowser(b);
+                          break;
+                        }
                       }
-                    }
-                  },
-                  child: Column(
-                    children: [
-                      for (final b in scope.browsers)
-                        RadioListTile<String>(
-                          value: b.id,
-                          title: Text(b.label),
-                          subtitle: Text(
-                            b.executablePath,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    },
+                    child: Column(
+                      children: [
+                        for (final b in scope.browsers)
+                          RadioListTile<String>(
+                            value: b.id,
+                            title: Text(b.label),
+                            subtitle: Text(
+                              b.executablePath,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            secondary: const Icon(Icons.public),
                           ),
-                          secondary: const Icon(Icons.public),
-                        ),
+                      ],
+                    ),
+                  ),
+                const Divider(height: 24),
+              ],
+              // --- Android/iOS: sayfa nasıl açılsın ---
+              if (_isMobile) ...[
+                const _SectionTitle('Açılış modu'),
+                RadioGroup<AndroidOpenMode>(
+                  groupValue: scope.settings.androidOpenMode,
+                  onChanged: (m) {
+                    if (m != null) scope.settings.setAndroidOpenMode(m);
+                  },
+                  child: const Column(
+                    children: [
+                      RadioListTile<AndroidOpenMode>(
+                        value: AndroidOpenMode.customTab,
+                        title: Text('Tarayıcıda (Custom Tab)'),
+                        subtitle:
+                            Text('Cihazın varsayılan tarayıcısında açılır'),
+                        secondary: Icon(Icons.open_in_browser),
+                      ),
+                      RadioListTile<AndroidOpenMode>(
+                        value: AndroidOpenMode.webView,
+                        title: Text('Tam ekran (WebView)'),
+                        subtitle: Text('Üst çubuk yok, uygulama içinde'),
+                        secondary: Icon(Icons.fullscreen),
+                      ),
                     ],
                   ),
                 ),
-              const Divider(height: 24),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+                  child: Text(
+                    'İpucu: Belirli bir tarayıcı (ör. Brave) istiyorsan onu '
+                    'Android ayarlarından varsayılan tarayıcı yap. Custom Tab '
+                    'varsayılan tarayıcıyı kullanır.',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+                const Divider(height: 24),
+              ],
               const _SectionTitle('Görünüm'),
               RadioGroup<ThemeMode>(
                 groupValue: scope.settings.themeMode,
@@ -97,6 +141,49 @@ class SettingsPage extends StatelessWidget {
                 subtitle: const Text('JSON dosyasından yer imlerini ekle'),
                 onTap: () => _import(context),
               ),
+              // --- Masaüstü: pencere & başlatma (widget davranışı) ---
+              if (WindowService.isDesktop) ...[
+                const Divider(height: 24),
+                const _SectionTitle('Pencere & Başlatma'),
+                SwitchListTile(
+                  value: scope.settings.autoStart,
+                  onChanged: (v) async {
+                    await scope.settings.setAutoStart(v);
+                    await scope.windowService.setAutoStart(v);
+                  },
+                  secondary: const Icon(Icons.power_settings_new),
+                  title: const Text('Açılışta başlat'),
+                  subtitle: const Text(
+                      'Bilgisayar açıldığında arka planda başlasın'),
+                ),
+                SwitchListTile(
+                  value: scope.settings.globalHotkey,
+                  onChanged: (v) async {
+                    await scope.settings.setGlobalHotkey(v);
+                    await scope.windowService.setHotkeyEnabled(v);
+                  },
+                  secondary: const Icon(Icons.keyboard),
+                  title: const Text('Global kısayol (Ctrl + Space)'),
+                  subtitle: const Text('Her yerden öne getir / gizle'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.center_focus_strong),
+                  title: const Text('Pencereyi sıfırla'),
+                  subtitle: const Text('Varsayılan boyut ve ekran ortası'),
+                  onTap: () => scope.windowService.resetWindow(),
+                ),
+                const ListTile(
+                  leading: Icon(Icons.info_outline),
+                  title: Text('Kapatınca tepsiye küçülür'),
+                  subtitle: Text('Uygulama arka planda çalışmaya devam eder'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: const Text('Uygulamadan çık'),
+                  subtitle: const Text('Arka plandan tamamen kapat'),
+                  onTap: () => scope.windowService.quit(),
+                ),
+              ],
             ],
           );
         },

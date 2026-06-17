@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- WebView modu ve ağ erişimi için (release derlemede gerekli). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Focus"
         android:name="${applicationName}"
@@ -51,5 +53,9 @@
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService"/>
         </intent>
+        <!-- Belirli tarayıcıları Custom Tab fallback olarak görebilmek için. -->
+        <package android:name="com.brave.browser"/>
+        <package android:name="com.android.chrome"/>
+        <package android:name="com.microsoft.emmx"/>
     </queries>
 </manifest>

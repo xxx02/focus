@@ -8,6 +8,14 @@ extension BrowserKindX on BrowserKind {
         BrowserKind.edge => 'Microsoft Edge',
         BrowserKind.chromium => 'Chromium',
       };
+
+  /// Android paket adı (Custom Tab tarayıcı ipucu için).
+  String? get androidPackage => switch (this) {
+        BrowserKind.brave => 'com.brave.browser',
+        BrowserKind.chrome => 'com.android.chrome',
+        BrowserKind.edge => 'com.microsoft.emmx',
+        BrowserKind.chromium => null,
+      };
 }
 
 /// Sistemde bulunmuş, app modunda başlatılabilen bir tarayıcı.

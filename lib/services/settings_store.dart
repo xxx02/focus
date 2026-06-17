@@ -5,12 +5,24 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/browser_choice.dart';
 
-/// Kullanıcı tercihlerini (seçili tarayıcı, tema) saklar.
+/// Android'de bir sayfanın nasıl açılacağı.
+enum AndroidOpenMode {
+  /// Chrome Custom Tab (cihazın varsayılan tarayıcısını kullanır).
+  customTab,
+
+  /// Uygulama içi tam ekran WebView (üst çubuk yok).
+  webView,
+}
+
+/// Kullanıcı tercihlerini (seçili tarayıcı, tema, widget davranışı) saklar.
 class SettingsStore extends ChangeNotifier {
   SettingsStore();
 
   static const _kBrowser = 'selected_browser';
   static const _kThemeMode = 'theme_mode';
+  static const _kAndroidOpenMode = 'android_open_mode';
+  static const _kAutoStart = 'auto_start';
+  static const _kGlobalHotkey = 'global_hotkey';
 
   SharedPreferences? _prefs;
 
@@ -19,6 +31,15 @@ class SettingsStore extends ChangeNotifier {
 
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
+
+  AndroidOpenMode _androidOpenMode = AndroidOpenMode.customTab;
+  AndroidOpenMode get androidOpenMode => _androidOpenMode;
+
+  bool _autoStart = false;
+  bool get autoStart => _autoStart;
+
+  bool _globalHotkey = true;
+  bool get globalHotkey => _globalHotkey;
 
   Future<void> load() async {
     _prefs = await SharedPreferences.getInstance();
@@ -38,7 +59,31 @@ class SettingsStore extends ChangeNotifier {
       _ => ThemeMode.system,
     };
 
+    _androidOpenMode = _prefs!.getString(_kAndroidOpenMode) == 'webView'
+        ? AndroidOpenMode.webView
+        : AndroidOpenMode.customTab;
+    _autoStart = _prefs!.getBool(_kAutoStart) ?? false;
+    _globalHotkey = _prefs!.getBool(_kGlobalHotkey) ?? true;
+
     notifyListeners();
+  }
+
+  Future<void> setAndroidOpenMode(AndroidOpenMode mode) async {
+    _androidOpenMode = mode;
+    notifyListeners();
+    await _prefs?.setString(_kAndroidOpenMode, mode.name);
+  }
+
+  Future<void> setAutoStart(bool value) async {
+    _autoStart = value;
+    notifyListeners();
+    await _prefs?.setBool(_kAutoStart, value);
+  }
+
+  Future<void> setGlobalHotkey(bool value) async {
+    _globalHotkey = value;
+    notifyListeners();
+    await _prefs?.setBool(_kGlobalHotkey, value);
   }
 
   /// Algılanan listeden seçili tarayıcıyı doğrular; geçersizse ilkini seçer.

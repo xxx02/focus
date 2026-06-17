@@ -25,6 +25,10 @@ Küçük ekranlı cihazlarda dikkat dağıtan tarayıcı arayüzünü kaldırıp
 - 🌐 **Tarayıcı seçimi** — kurulu tarayıcılar otomatik algılanır
 - 🎯 **App modu** — açılan sayfa adres çubuğu/sekme olmadan, tam odakla gelir
 - 🎨 **Modern sade arayüz** — açık/koyu tema, responsive ızgara
+- 🪟 **Masaüstü widget modu** — `Ctrl + Space` ile öne getir/gizle, sistem
+  tepsisinde arka planda çalışır, kapatınca tepsiye küçülür, OS açılışında başlar
+- 📱 **Android açılış modu** — Custom Tab (varsayılan tarayıcı) ya da üst çubuksuz
+  tam ekran WebView (ayarlardan seçilir)
 
 ## İndir & Kur
 

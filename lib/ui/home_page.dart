@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       url,
       browser: scope.settings.selectedBrowser,
       context: context,
+      androidMode: scope.settings.androidOpenMode,
     );
   }
 
